@@ -129,6 +129,58 @@ class ProductsTest extends TestCase
         $response->assertStatus(403);
     }
 
+    public function test_non_admin_can_not_delete_product ()
+    {
+        $product = Product::factory()->create();
+        $response = $this->actingAs($this->user)->delete("products/{$product->id}/delete");
+        $response->assertStatus(403);
+    }
+
+    public function test_product_delete_successful ()
+    {
+        $product = Product::factory()->create();
+
+        $response = $this->actingAs($this->admin)->delete("products/{$product->id}/delete");
+
+        $response->assertStatus(302);
+        $response->assertRedirect('products');
+
+        $this->assertDatabaseMissing('products', $product->toArray());
+        $this->assertDatabaseCount('products', 0);
+    }
+
+    public function test_api_returns_products_list()
+    {
+        $product = Product::factory()->create();        
+        $response = $this->getJson('/api/products');
+        $response->assertJson([$product->toArray()]);
+    }
+
+    public function test_api_product_store_successful()
+    {
+        $product = [
+            'name' => 'New Prduct',
+            'price' => 3400,
+        ];
+
+        $response = $this->postJson('/api/products', $product);
+
+        $response->assertStatus(201);
+        $response->assertJson($product);
+    }
+
+    public function test_api_product_invalid_store_returns_error()
+    {
+        $product = [
+            'name' => '',
+            'price' => 3400,
+        ];
+
+        $response = $this->postJson('/api/products', $product);
+
+        $response->assertStatus(422);
+    }
+
     private function createUser(bool $isAdmin = false): User
     {
         return User::factory()->create([

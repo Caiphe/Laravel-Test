@@ -82,7 +82,11 @@
                                                         <a href="{{ route('products.edit', $product) }}">Edit</a>
                                                     </td>
                                                     <td class="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-                                                        <a class="btn btn-danger" href="{{ route('products.edit', $product) }}">Delete</a>
+                                                        <form action="{{ route('products.delete', $product) }}" method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button onclick="return confirm('Are you sure ?')" type="submit" class="btn btn-danger">Delete</button>
+                                                        </form>
                                                     </td>
                                                     @endif
 
@@ -105,8 +109,6 @@
                 </div>
             </div>
         </div>
-
-
     </body>
 </html>
 
